@@ -3,7 +3,7 @@ const mysql = require("mysql");
 const db = mysql.createConnection({
     host: "localhost",
     user: "root",
-    password: "test",
+    password: process.env.DATABASE_KEY,
     database: "todo_db"
 });
 
