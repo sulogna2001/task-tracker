@@ -1,18 +1,19 @@
 
 const express = require("express");
 const app= express();
+const dotenv = require("dotenv");
+const cors = require("cors");
 
-const usersRoute= require('./routes/usersRoute')
-const authRoute= require('./routes/authRoute')
-const todoRoute= require('./routes/todoRoute')
+const todos = require('./routes/todoRoute')
 
 app.use(express.json());
+dotenv.config();
+app.use(cors());
+
 //port
 const port = process.env.PORT || 8800
 
-app.use("/api/auth" , authRoute);
-app.use("/api/users" , usersRoute);
-app.use("/api/todo" , todoRoute);
+app.use('/api',todos)
 
 app.listen(port, () => {
     console.log(`Server running on port ${port}`);
