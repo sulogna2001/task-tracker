@@ -9,31 +9,42 @@ exports.createDB = (req, res) => {
   });
 };
 
-//CREATE TABLE
 exports.createTable = (req, res) => {
-  let q =
-    "CREATE TABLE todolist1(id int AUTO_INCREMENT, firstName VARCHAR(255), lastName VARCHAR(255), PRIMARY KEY(id))";
+  let q = `CREATE TABLE tasklist(
+      id INT AUTO_INCREMENT,
+      task VARCHAR(255),
+      created_at DATETIME,
+      updated_at DATETIME,
+      PRIMARY KEY(id)
+    )`;
   db.query(q, (err, result) => {
     if (err) throw err;
     return res.status(201).json("TABLE CREATED");
   });
 };
 
-//CREATE LIST
+// CREATE LIST
 exports.createList = (req, res) => {
-  const q = "INSERT INTO todolist1 SET ?";
+  const { task } = req.body;
 
-  const { firstName, lastName } = req.body;
+  // Check if the task is empty
+  if (!task || task.trim() === "") {
+    return res.status(400).json({ error: "Task cannot be empty" });
+  }
 
-  db.query(q, { firstName, lastName }, (err, result) => {
-    if (err) return res.json(err);
+  const q = "INSERT INTO tasklist SET ?";
+  const createdAt = new Date();
+  const data = { task, created_at: createdAt };
+
+  db.query(q, data, (err, result) => {
+    if (err) return res.status(500).json(err);
     return res.status(200).json(result);
   });
 };
 
 //SHOW TODOS
 exports.showTodos = (req, res) => {
-  const q = "SELECT * FROM todolist1";
+  const q = "SELECT * FROM tasklist";
 
   db.query(q, (err, result) => {
     if (err) return res.json(err);
@@ -43,7 +54,7 @@ exports.showTodos = (req, res) => {
 
 //SHOW SINGLE TODO
 exports.singleTodo = (req, res) => {
-  const q = `SELECT * FROM todolist1 where id=${req.params.id}`;
+  const q = `SELECT * FROM tasklist where id=${req.params.id}`;
 
   db.query(q, (err, result) => {
     if (err) return res.json(err);
@@ -51,13 +62,14 @@ exports.singleTodo = (req, res) => {
   });
 };
 
-//UPDATE TODO
+// UPDATE TODO
 exports.updateTodo = (req, res) => {
-  const { firstName, lastName } = req.body;
-  // const q = `UPDATE todolist1 SET firstName ='${firstName}' lastName ='${lastName}' where id=${req.params.id}`;
-  const q = `UPDATE todolist1 SET ? where id=${req.params.id}`;
+  const { task } = req.body;
 
-  db.query(q, { firstName, lastName }, (err, result) => {
+  const q = `UPDATE tasklist SET ? WHERE id=${req.params.id}`;
+  const data = { task };
+
+  db.query(q, data, (err, result) => {
     if (err) return res.json(err);
     return res.status(200).json(result);
   });
@@ -65,10 +77,10 @@ exports.updateTodo = (req, res) => {
 
 //DELETE SINGLE TODO
 exports.deleteSingleTodo = (req, res) => {
-  const q = `DELETE FROM todolist1  WHERE id=${req.params.id}`;
+  const q = `DELETE FROM tasklist  WHERE id=${req.params.id}`;
 
   db.query(q, (err, result) => {
     if (err) return res.json(err);
-    return res.status(200).json({ data: "todo deleted" });
+    return res.status(200).json({ data: "Todo deleted" });
   });
 };
